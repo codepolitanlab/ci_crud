@@ -5,10 +5,9 @@ class Auth extends CI_Controller {
 	function __construct()
 	{
 		parent::__construct();
-		
-		// Load MongoDB library instead of native db driver if required
-		$this->config->item('use_mongodb', 'ion_auth') ?
-		$this->load->library('mongo_db') :
+		$this->load->library('ion_auth');
+		$this->load->library('form_validation');
+		$this->load->helper('url');
 
 		$this->load->database();
 
@@ -161,7 +160,7 @@ class Auth extends CI_Controller {
 		}
 		else
 		{
-			$identity = $this->session->userdata($this->config->item('identity', 'ion_auth'));
+			$identity = $this->session->userdata('identity');
 
 			$change = $this->ion_auth->change_password($identity, $this->input->post('old'), $this->input->post('new'));
 
@@ -182,7 +181,7 @@ class Auth extends CI_Controller {
 	//forgot password
 	function forgot_password()
 	{
-		$this->form_validation->set_rules('email', $this->lang->line('forgot_password_validation_email_label'), 'required');
+		$this->form_validation->set_rules('email', $this->lang->line('forgot_password_validation_email_label'), 'required|valid_email');
 		if ($this->form_validation->run() == false)
 		{
 			//setup the input
@@ -204,14 +203,20 @@ class Auth extends CI_Controller {
 		}
 		else
 		{
-			// get identity for that email
-            $identity = $this->ion_auth->where('email', strtolower($this->input->post('email')))->users()->row();
-            if(empty($identity)) {
-                $this->ion_auth->set_message('forgot_password_email_not_found');
-                $this->session->set_flashdata('message', $this->ion_auth->messages());
-                redirect("auth/forgot_password", 'refresh');
-            }
-            
+			// get identity from username or email
+			if ( $this->config->item('identity', 'ion_auth') == 'username' ){
+				$identity = $this->ion_auth->where('username', strtolower($this->input->post('email')))->users()->row();
+			}
+			else
+			{
+				$identity = $this->ion_auth->where('email', strtolower($this->input->post('email')))->users()->row();
+			}
+	            	if(empty($identity)) {
+		        	$this->ion_auth->set_message('forgot_password_email_not_found');
+		                $this->session->set_flashdata('message', $this->ion_auth->messages());
+                		redirect("auth/forgot_password", 'refresh');
+            		}
+
 			//run the forgotten password method to email an activation code to the user
 			$forgotten = $this->ion_auth->forgotten_password($identity->{$this->config->item('identity', 'ion_auth')});
 
@@ -349,7 +354,7 @@ class Auth extends CI_Controller {
 	//deactivate the user
 	function deactivate($id = NULL)
 	{
-		$id = $this->config->item('use_mongodb', 'ion_auth') ? (string) $id : (int) $id;
+		$id = (int) $id;
 
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('confirm', $this->lang->line('deactivate_validation_confirm_label'), 'required');
@@ -396,12 +401,14 @@ class Auth extends CI_Controller {
 			redirect('auth', 'refresh');
 		}
 
+		$tables = $this->config->item('tables','ion_auth');
+
 		//validate form input
 		$this->form_validation->set_rules('first_name', $this->lang->line('create_user_validation_fname_label'), 'required|xss_clean');
 		$this->form_validation->set_rules('last_name', $this->lang->line('create_user_validation_lname_label'), 'required|xss_clean');
-		$this->form_validation->set_rules('nim', $this->lang->line('create_user_validation_nim_label'), 'required|xss_clean|max_length[8]');
-		$this->form_validation->set_rules('ipk', $this->lang->line('create_user_validation_ipk_label'), 'xss_clean');
-		$this->form_validation->set_rules('email', $this->lang->line('create_user_validation_email_label'), 'required|valid_email|is_unique[users.email]');
+		$this->form_validation->set_rules('email', $this->lang->line('create_user_validation_email_label'), 'required|valid_email|is_unique['.$tables['users'].'.email]');
+		$this->form_validation->set_rules('phone', $this->lang->line('create_user_validation_phone_label'), 'required|xss_clean');
+		$this->form_validation->set_rules('company', $this->lang->line('create_user_validation_company_label'), 'required|xss_clean');
 		$this->form_validation->set_rules('password', $this->lang->line('create_user_validation_password_label'), 'required|min_length[' . $this->config->item('min_password_length', 'ion_auth') . ']|max_length[' . $this->config->item('max_password_length', 'ion_auth') . ']|matches[password_confirm]');
 		$this->form_validation->set_rules('password_confirm', $this->lang->line('create_user_validation_password_confirm_label'), 'required');
 
@@ -414,8 +421,8 @@ class Auth extends CI_Controller {
 			$additional_data = array(
 				'first_name' => $this->input->post('first_name'),
 				'last_name'  => $this->input->post('last_name'),
-				'nim'    => $this->input->post('nim'),
-				'ipk'      => $this->input->post('ipk'),
+				'company'    => $this->input->post('company'),
+				'phone'      => $this->input->post('phone'),
 			);
 		}
 		if ($this->form_validation->run() == true && $this->ion_auth->register($username, $password, $email, $additional_data))
@@ -449,17 +456,17 @@ class Auth extends CI_Controller {
 				'type'  => 'text',
 				'value' => $this->form_validation->set_value('email'),
 			);
-			$this->data['nim'] = array(
-				'name'  => 'nim',
-				'id'    => 'nim',
+			$this->data['company'] = array(
+				'name'  => 'company',
+				'id'    => 'company',
 				'type'  => 'text',
-				'value' => $this->form_validation->set_value('nim'),
+				'value' => $this->form_validation->set_value('company'),
 			);
-			$this->data['ipk'] = array(
-				'name'  => 'ipk',
-				'id'    => 'ipk',
+			$this->data['phone'] = array(
+				'name'  => 'phone',
+				'id'    => 'phone',
 				'type'  => 'text',
-				'value' => $this->form_validation->set_value('ipk'),
+				'value' => $this->form_validation->set_value('phone'),
 			);
 			$this->data['password'] = array(
 				'name'  => 'password',
@@ -495,8 +502,8 @@ class Auth extends CI_Controller {
 		//validate form input
 		$this->form_validation->set_rules('first_name', $this->lang->line('edit_user_validation_fname_label'), 'required|xss_clean');
 		$this->form_validation->set_rules('last_name', $this->lang->line('edit_user_validation_lname_label'), 'required|xss_clean');
-		$this->form_validation->set_rules('ipk', $this->lang->line('edit_user_validation_ipk_label'), 'xss_clean');
-		$this->form_validation->set_rules('nim', $this->lang->line('edit_user_validation_nim_label'), 'xss_clean');
+		$this->form_validation->set_rules('phone', $this->lang->line('edit_user_validation_phone_label'), 'required|xss_clean');
+		$this->form_validation->set_rules('company', $this->lang->line('edit_user_validation_company_label'), 'required|xss_clean');
 		$this->form_validation->set_rules('groups', $this->lang->line('edit_user_validation_groups_label'), 'xss_clean');
 
 		if (isset($_POST) && !empty($_POST))
@@ -510,21 +517,25 @@ class Auth extends CI_Controller {
 			$data = array(
 				'first_name' => $this->input->post('first_name'),
 				'last_name'  => $this->input->post('last_name'),
-				'nim'    => $this->input->post('nim'),
-				'ipk'      => $this->input->post('ipk'),
+				'company'    => $this->input->post('company'),
+				'phone'      => $this->input->post('phone'),
 			);
 
-			//Update the groups user belongs to
-			$groupData = $this->input->post('groups');
+			// Only allow updating groups if user is admin
+			if ($this->ion_auth->is_admin())
+			{
+				//Update the groups user belongs to
+				$groupData = $this->input->post('groups');
 
-			if (isset($groupData) && !empty($groupData)) {
+				if (isset($groupData) && !empty($groupData)) {
 
-				$this->ion_auth->remove_from_group('', $id);
+					$this->ion_auth->remove_from_group('', $id);
 
-				foreach ($groupData as $grp) {
-					$this->ion_auth->add_to_group($grp, $id);
+					foreach ($groupData as $grp) {
+						$this->ion_auth->add_to_group($grp, $id);
+					}
+
 				}
-
 			}
 
 			//update the password if it was posted
@@ -577,17 +588,17 @@ class Auth extends CI_Controller {
 			'type'  => 'text',
 			'value' => $this->form_validation->set_value('last_name', $user->last_name),
 		);
-		$this->data['nim'] = array(
-			'name'  => 'nim',
-			'id'    => 'nim',
+		$this->data['company'] = array(
+			'name'  => 'company',
+			'id'    => 'company',
 			'type'  => 'text',
-			'value' => $this->form_validation->set_value('nim', $user->nim),
+			'value' => $this->form_validation->set_value('company', $user->company),
 		);
-		$this->data['ipk'] = array(
-			'name'  => 'ipk',
-			'id'    => 'ipk',
+		$this->data['phone'] = array(
+			'name'  => 'phone',
+			'id'    => 'phone',
 			'type'  => 'text',
-			'value' => $this->form_validation->set_value('ipk', $user->ipk),
+			'value' => $this->form_validation->set_value('phone', $user->phone),
 		);
 		$this->data['password'] = array(
 			'name' => 'password',
@@ -603,23 +614,7 @@ class Auth extends CI_Controller {
 		$this->_render_page('auth/edit_user', $this->data);
 	}
 
-	function delete_user($id)
-	{
-		// bail if no group id given
-		if(!$id || empty($id))
-		{
-			redirect('auth', 'refresh');
-		}
-
-		if($id == 1){
-			$this->session->set_flashdata('message', 'Admin account cannot be deleted.');
-			$this->data['message'] = $this->session->flashdata('message');
-		} else
-			$this->ion_auth_model->delete_user($id);
-		
-		redirect(getenv('HTTP_REFERER'));
-	}
-
+	// group list
 	function groups()
 	{
 		if (!$this->ion_auth->logged_in())
@@ -636,10 +631,8 @@ class Auth extends CI_Controller {
 		{
 			//set the flash data error message if there is one
 			$this->data['message'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('message');
-
 			//list the users
 			$this->data['groups'] = $this->ion_auth->groups()->result();
-
 			$this->_render_page('auth/groups', $this->data);
 		}	
 	}
@@ -666,7 +659,7 @@ class Auth extends CI_Controller {
 				// check to see if we are creating the group
 				// redirect them back to the admin page
 				$this->session->set_flashdata('message', $this->ion_auth->messages());
-				redirect("auth/groups", 'refresh');
+				redirect("auth", 'refresh');
 			}
 		}
 		else
@@ -728,7 +721,7 @@ class Auth extends CI_Controller {
 				{
 					$this->session->set_flashdata('message', $this->ion_auth->errors());
 				}
-				redirect("auth/groups", 'refresh');
+				redirect("auth", 'refresh');
 			}
 		}
 
@@ -754,22 +747,6 @@ class Auth extends CI_Controller {
 		$this->_render_page('auth/edit_group', $this->data);
 	}
 
-	function delete_group($id)
-	{
-		// bail if no group id given
-		if(!$id || empty($id))
-		{
-			redirect('auth', 'refresh');
-		}
-
-		if(in_array($id, array(1, 2))) {
-			$this->session->set_flashdata('message', 'Default groups cannot be deleted.');
-			$this->data['message'] = $this->session->flashdata('message');
-		} else
-			$this->ion_auth_model->delete_group($id);
-
-		redirect(getenv('HTTP_REFERER'));
-	}
 
 	function _get_csrf_nonce()
 	{
