@@ -12,3 +12,6 @@ CodeIgniter CRUD with Ion Auth Library and Bootstrap Template
 - download and extract to your localhost
 - create database and import sql file in assets/sql/ion_auth.sql
 - set database configuration in application/config/database.php
+- use this default account
+  - username: admin@admin.com
+  - password: password

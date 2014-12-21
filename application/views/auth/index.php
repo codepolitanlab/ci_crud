@@ -37,8 +37,8 @@
 			<td><?php echo ($user->active) ? anchor("auth/deactivate/".$user->id, lang('index_active_link')) : anchor("auth/activate/". $user->id, lang('index_inactive_link'));?></td>
 			<td>
 				<div class="pull-right">
-				<?php if($user->id != 1): ?>
 				<?php echo anchor("auth/edit_user/".$user->id, '<i class="glyphicon glyphicon-edit"></i> Edit', 'class="btn btn-xs btn-warning"') ;?>
+				<?php if($user->id != 1): ?>
 				<?php echo anchor("auth/delete_user/".$user->id, '<i class="glyphicon glyphicon-remove"></i> Delete', 'class="btn btn-xs btn-danger" onclick="return confirm(\'Are you sure want to delete this?\')"') ;?>
 				<?php endif; ?>
 				</div>
