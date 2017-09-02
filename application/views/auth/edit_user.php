@@ -69,7 +69,7 @@
 							?>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" name="groups[]" value="<?php echo $group['id'];?>"<?php echo $checked;?>>
+									<input type="checkbox" name="groups[]" class="group-<?php echo $group['name'];?>" value="<?php echo $group['id'];?>"<?php echo $checked;?>>
 									<?php echo $group['name'];?>
 								</div>
 							</label>
