@@ -1366,6 +1366,21 @@ class Ion_auth_model extends CI_Model
 		return $this;
 	}
 
+	public function user_by_email($email = NULL)
+	{
+		$this->trigger_events('user');
+
+		//if no id was passed use the current users id
+		$email || $email = $this->session->userdata('email');
+
+		$this->limit(1);
+		$this->where($this->tables['users'].'.email', $email);
+
+		$this->users();
+
+		return $this;
+	}
+
 	/**
 	 * get_users_groups
 	 *
@@ -1599,6 +1614,42 @@ class Ion_auth_model extends CI_Model
 	{
 		$this->trigger_events('pre_delete_user');
 
+		$this->db->trans_begin();
+
+		// remove user from groups
+		$this->remove_from_group(NULL, $id);
+
+		// delete user from users table should be placed after remove from group
+		$this->db->delete($this->tables['users'], array('id' => $id));
+
+		// if user does not exist in database then it returns FALSE else removes the user from groups
+		if ($this->db->affected_rows() == 0)
+		{
+		    return FALSE;
+		}
+
+		if ($this->db->trans_status() === FALSE)
+		{
+			$this->db->trans_rollback();
+			$this->trigger_events(array('post_delete_user', 'post_delete_user_unsuccessful'));
+			$this->set_error('delete_unsuccessful');
+			return FALSE;
+		}
+
+		$this->db->trans_commit();
+
+		$this->trigger_events(array('post_delete_user', 'post_delete_user_successful'));
+		$this->set_message('delete_successful');
+		return TRUE;
+	}
+
+	public function delete_user_by_email($email)
+	{
+		$this->trigger_events('pre_delete_user');
+
+		$res = $this->db->where('email',$email)->get($this->tables['users'])->row_array();
+		$id = $res['id'];
+		
 		$this->db->trans_begin();
 
 		// remove user from groups

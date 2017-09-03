@@ -1,0 +1,688 @@
+{
+	"variables": [],
+	"info": {
+		"name": "ci_crud",
+		"_postman_id": "d67c62ac-032a-9de7-7aef-421e64b59999",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "NoLoginAccessCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"Login\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "identity",
+							"value": "admin@admin.com",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "IncorrectLoginCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"Incorrect Login\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/login",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "identity",
+							"value": "admin@admin.com",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "passwordx",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CorrectLoginCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"Logout\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/login",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "identity",
+							"value": "admin@admin.com",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUserFormCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"<h1>Create User</h1>\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/create_user",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "identity",
+							"value": "admin@admin.com",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUserErrorFirstNameRequiredCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"The First Name field is required.\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/create_user",
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUserErrorLastNameRequiredCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"The Last Name field is required.\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/create_user",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "first_name",
+							"value": "Toni",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUserErrorEmailRequiredCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"The Email Address field is required.\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/create_user",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "first_name",
+							"value": "Toni",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Haryanto",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUserErrorEmailInvalidCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"The Email Address field must contain a valid email address.\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/create_user",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "first_name",
+							"value": "Toni",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Haryanto",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "toha.samba",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUserErrorPasswordRequiredCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"The Password field is required.\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/create_user",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "first_name",
+							"value": "Toni",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Haryanto",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "toha.samba@gmail.com",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUserErrorPasswordConfirmationRequiredCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"The Password Confirmation field is required.\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/create_user",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "first_name",
+							"value": "Toni",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Haryanto",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "toha.samba@gmail.com",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUserErrorPasswordConfirmationNotMatchCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"The Password field does not match the Password Confirmation field.\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/create_user",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "first_name",
+							"value": "Toni",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Haryanto",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "toha.samba@gmail.com",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password_confirm",
+							"value": "passwordtoo",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUserSuccessCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"<td>toha.samba@gmail.com</td>\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/create_user",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "first_name",
+							"value": "Toni",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Haryanto",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "toha.samba@gmail.com",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password_confirm",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUserErrorDuplicateCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"The Email Address field must contain a unique value.\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/create_user",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "first_name",
+							"value": "Toni",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Haryanto",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "toha.samba@gmail.com",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password_confirm",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteUserCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"User deleted.\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/delete_user_by_email/toha.samba%40gmail.com",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "first_name",
+							"value": "Toni",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Haryanto",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "toha.samba@gmail.com",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password_confirm",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "LogoutCase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Body matches string\"] = responseBody.has(\"Login\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost/ci_crud/index.php/auth/logout",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "first_name",
+							"value": "Toni",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Haryanto",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "toha.samba@gmail.com",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password_confirm",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
